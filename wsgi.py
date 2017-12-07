@@ -20,6 +20,7 @@ def validate():
     echostr = request.args.get('echostr')
 
     token = TOKEN
+    print(echostr)
     if validate_signature(token=token, signature=signature, timestamp=timestamp, nonce=nonce):
         return echostr
     return False
@@ -33,6 +34,10 @@ def validate_signature(token, signature, timestamp, nonce):
     # "".join()
     # hashlib.sha1().hexdigest()
     # 3）开发者获得加密后的字符串可与signature对比，标识该请求来源于微信
-    if hashlib.sha1(''.join(sorted([token, timestamp, nonce]))).hexdigest() == signature:
+    print(token)
+    print(timestamp)
+    print(signature)
+    print(nonce)
+    if hashlib.sha1(''.join(sorted([token, timestamp, nonce])).encode('utf-8')).hexdigest() == signature:
         return True
     return False
