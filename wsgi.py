@@ -1,12 +1,35 @@
 import flask
 from flask import Flask, request
 import hashlib
+import requests
 app = Flask(__name__)
-
+APPID = "wx39b9e8693cdf819d"
+APPSECRET = "a40627662a40cf3c2e9cf382134a95b6"
 TOKEN = "ATGUOHAELKiubahiughaerGOJAEGj"
 @app.route("/")
 def index():
-    return  "Hello world"
+    return "Hello world"
+
+@app.route("/get_access_token")
+def get_access_token():
+    result = requests.get("https://api.weixin.qq.com/cgi-bin/token",
+                          params={"grant_type": "client_credential",
+                                  "appid": APPID,
+                                  "secret": APPSECRET})
+    if result.status_code == 200:
+        access_token = result.json()['access_token']
+        expires_in = result.json()['expires_in']
+
+
+    return result.json()
+
+
+
+
+
+
+
+
 
 @app.route('/validate', methods=['GET'])
 def validate():
@@ -20,7 +43,6 @@ def validate():
     echostr = request.args.get('echostr')
 
     token = TOKEN
-    print(echostr)
     if validate_signature(token=token, signature=signature, timestamp=timestamp, nonce=nonce):
         return echostr
     return False
@@ -34,10 +56,6 @@ def validate_signature(token, signature, timestamp, nonce):
     # "".join()
     # hashlib.sha1().hexdigest()
     # 3）开发者获得加密后的字符串可与signature对比，标识该请求来源于微信
-    print(token)
-    print(timestamp)
-    print(signature)
-    print(nonce)
     if hashlib.sha1(''.join(sorted([token, timestamp, nonce])).encode('utf-8')).hexdigest() == signature:
         return True
     return False
